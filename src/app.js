@@ -16,7 +16,7 @@ const DetalleOrdenVta = require("./models/DetalleOrdenVta");
 
 require("./models/Usuario");
 
-// ===== RELACIONES (FK EXACTAS) =====
+// ===== RELACIONES (FK EXACTAS SEGÚN DIAGRAMA) =====
 
 // Catálogos
 Medicamento.belongsTo(TipoMedic, { foreignKey: "CodTipoMed" });
@@ -63,16 +63,23 @@ app.get("/", (req, res) => {
   res.json({ message: "API FARMACIA FINAL 🚀" });
 });
 
-// ===== DB =====
+// ===== INICIO DEL SERVIDOR Y BASE DE DATOS =====
+
+// Definimos el puerto (Railway asigna uno automáticamente en process.env.PORT)
+const PORT = process.env.PORT || 3000;
+
 sequelize.authenticate()
   .then(() => {
     console.log("✅ MySQL conectado");
-    return sequelize.sync();
+    // sync() creará las tablas en Railway basándose en las relaciones de arriba
+    return sequelize.sync(); 
   })
   .then(() => {
-    console.log("📦 Tablas listas");
-    app.listen(process.env.PORT, () => {
-      console.log(`🚀 http://localhost:${process.env.PORT}`);
+    console.log("📦 Tablas sincronizadas con el diagrama");
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor activo en puerto: ${PORT}`);
     });
   })
-  .catch(err => console.error("❌ Error:", err));
+  .catch(err => {
+    console.error("❌ Error de conexión o sincronización:", err);
+  });
